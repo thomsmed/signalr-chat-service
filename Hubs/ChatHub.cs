@@ -1,45 +1,53 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using SignalRChat.Model;
 
 namespace SignalRChat.Hubs
 {
     public class ChatHub : Hub<IChatClient>, IChatHub
     {
-        public async Task SendMessageToCaller(string message) {
+        public async Task SendMessageToCaller(MessageDto message) {
             await Clients.Caller.ReceiveMessageFromSelf(message);
         }
 
-        public async Task SendMessageToUser(string connectionId, string message) {
-            await Clients.Client(connectionId).ReceiveMessageFromUser(Context.ConnectionId, message);
+        public async Task SendMessageToUser(MessageDto message) {
+            message.Sender = Context.ConnectionId;
+            await Clients.Client(message.Receiver).ReceiveMessageFromUser(message);
         }
 
-        public async Task SendMessageToGroup(string group, string message) {
-            await Clients.OthersInGroup(group).ReceiveMessageFromGroup(group, Context.ConnectionId, message);
+        public async Task SendMessageToGroup(MessageDto message) {
+            message.Sender = Context.ConnectionId;
+            await Clients.OthersInGroup(message.Group).ReceiveMessageFromGroup(message);
         }
 
-        public async Task SendMessageToAll(string message)
+        public async Task SendMessageToAll(MessageDto message)
         {
-            await Clients.Others.ReceiveMessageFromUser(Context.ConnectionId, message);
+            message.Sender = Context.ConnectionId;
+            await Clients.Others.ReceiveMessageFromUser(message);
         }
 
-        public async Task JoinGroup(string group) {
-            await Groups.AddToGroupAsync(Context.ConnectionId, group);
-            await Clients.OthersInGroup(group).UserJoinedGroup(group, Context.ConnectionId);
+        public async Task JoinGroup(GroupDto group) {
+            group.Participant = Context.ConnectionId;
+            await Groups.AddToGroupAsync(Context.ConnectionId, group.Id);
+            await Clients.OthersInGroup(group.Id).UserJoinedGroup(group);
         }
 
-        public async Task LeaveGroup(string group) {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
-            await Clients.OthersInGroup(group).UserLeftGroup(group, Context.ConnectionId);
+        public async Task LeaveGroup(GroupDto group) {
+            group.Participant = Context.ConnectionId;
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, group.Id);
+            await Clients.OthersInGroup(group.Id).UserLeftGroup(group);
         }
 
         public override async Task OnConnectedAsync() {
-            await Clients.Others.UserConnected(Context.ConnectionId);
+            var user = new UserDto(){ Id = Context.ConnectionId };
+            await Clients.Others.UserConnected(user);
             await base.OnConnectedAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception exception) {
-            await Clients.Others.UserDisconnected(Context.ConnectionId);
+            var user = new UserDto(){ Id = Context.ConnectionId };
+            await Clients.Others.UserDisconnected(user);
             await base.OnDisconnectedAsync(exception);
         }
     }

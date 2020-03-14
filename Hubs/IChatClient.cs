@@ -1,20 +1,21 @@
 using System.Threading.Tasks;
+using SignalRChat.Model;
 
 namespace SignalRChat.Hubs {
     public interface IChatClient
     {
-        Task ReceiveMessageFromSelf(string message);
+        Task ReceiveMessageFromSelf(MessageDto message);
 
-        Task ReceiveMessageFromUser(string connectionId, string message);
+        Task ReceiveMessageFromUser(MessageDto message);
 
-        Task ReceiveMessageFromGroup(string group, string connectionId, string message);
+        Task ReceiveMessageFromGroup(MessageDto message);
 
-        Task UserJoinedGroup(string group, string connectionId);
+        Task UserJoinedGroup(GroupDto group);
 
-        Task UserLeftGroup(string group, string connectionId);
+        Task UserLeftGroup(GroupDto group);
 
-        Task UserConnected(string connectionId);
+        Task UserConnected(UserDto user);
 
-        Task UserDisconnected(string connectionId);
+        Task UserDisconnected(UserDto user);
     }
 }
