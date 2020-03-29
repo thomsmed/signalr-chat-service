@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace SignalRChat.Config {
     public static class CorsConfig {
-        public static string MyAllowAllOriginsPolicy = "MyAllowAllOriginsPolicy";
-        public static string MyAllowChatClientOriginsPolicy = "MyAllowChatClientOriginsPolicy";
+        public static string AllowAllOriginsCorsPolicy = "AllowAllOriginsCorsPolicy";
+        public static string AllowKnownClientOriginsCorsPolicy = "AllowKnownClientOriginsCorsPolicy";
         public static void Configure(CorsOptions options) {
             options.AddDefaultPolicy(
                 builder =>
@@ -16,7 +16,7 @@ namespace SignalRChat.Config {
                         .AllowCredentials();
                 });
                 
-                options.AddPolicy(MyAllowAllOriginsPolicy,
+            options.AddPolicy(AllowAllOriginsCorsPolicy,
                 builder =>
                 {
                     builder.AllowAnyOrigin()
@@ -24,7 +24,7 @@ namespace SignalRChat.Config {
                         .AllowAnyMethod();
                 });
 
-                options.AddPolicy(MyAllowChatClientOriginsPolicy,
+            options.AddPolicy(AllowKnownClientOriginsCorsPolicy,
                 builder =>
                 {
                     builder.AllowAnyMethod()

@@ -36,7 +36,6 @@ namespace SignalRChat
                 options.KnownProxies.Clear();
             });
 
-            // CORS
             services.AddCors(CorsConfig.Configure);
             
             services.AddSignalR();
@@ -48,6 +47,8 @@ namespace SignalRChat
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                
+                app.UseCors();
             } else
             {
                 var options = new RewriteOptions()
@@ -55,11 +56,11 @@ namespace SignalRChat
                     .AddRedirect("(.*)/$", "$1");  // remove trailing slash
 
                 app.UseRewriter(options);
+                
+                app.UseCors(CorsConfig.AllowKnownClientOriginsCorsPolicy);
             }
 
             app.UseForwardedHeaders();
-
-            app.UseCors();
 
             app.UseRouting();
             
